@@ -1,46 +1,46 @@
-import axios from "axios";
-
-export const axiosInstance = axios.create({})
-
-
-// import axios, { AxiosError } from 'axios'
-// import { store } from '../store'
-// import { getAccessToken, logoutUser } from '../store/auth/actionCreators'
-
-// import Endpoints from './endpoints'
+// import axios from "axios";
 
 // export const axiosInstance = axios.create({})
 
-// const urlsSkipAuth = [Endpoints.AUTH.LOGIN, Endpoints.AUTH.REFRESH, Endpoints.AUTH.LOGOUT]
 
-// axiosInstance.interceptors.request.use(async (config) => {
-//     if (config.url && urlsSkipAuth.includes(config.url)) {
-//         return config
-//     }
+import axios, { AxiosError } from 'axios'
+import { store } from '../store'
+import { getAccessToken, logoutUser } from '../store/auth/actionCreators'
 
-//     const accessToken = await store.dispatch(getAccessToken())
+import Endpoints from './endpoints'
 
-//     if (accessToken) {
-//         const autharization = `Bearer ${accessToken}`
+export const axiosInstance = axios.create({})
 
-//         config.headers = {
-//             ...config.headers,
-//             authorization: autharization
-//         }
-//     }
+const urlsSkipAuth = [Endpoints.AUTH.LOGIN, Endpoints.AUTH.REFRESH, Endpoints.AUTH.LOGOUT]
 
-//     return config
-// })
+axiosInstance.interceptors.request.use(async (config) => {
+    if (config.url && urlsSkipAuth.includes(config.url)) {
+        return config
+    }
 
-// axiosInstance.interceptors.response.use(
-//     (response) => response,
-//     (error: AxiosError) => {
-//         const isLoggedIn = !!store.getState().auth.authData.accessToken
+    const accessToken = await store.dispatch(getAccessToken())
 
-//         if ((error.response?.status === 401) && isLoggedIn && error.request.url !== Endpoints.AUTH.LOGOUT) {
-//             store.dispatch(logoutUser())
-//         }
+    if (accessToken) {
+        const autharization = `Bearer ${accessToken}`
 
-//         throw error
-//     }
-// )
+        config.headers = {
+            ...config.headers,
+            authorization: autharization
+        }
+    }
+
+    return config
+})
+
+axiosInstance.interceptors.response.use(
+    (response) => response,
+    (error: AxiosError) => {
+        const isLoggedIn = !!store.getState().auth.authData.accessToken
+
+        if ((error.response?.status === 401) && isLoggedIn && error.request.url !== Endpoints.AUTH.LOGOUT) {
+            store.dispatch(logoutUser())
+        }
+
+        throw error
+    }
+)
